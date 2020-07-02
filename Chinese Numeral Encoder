@@ -1,0 +1,100 @@
+from numpy import arange
+
+
+def to_chinese_numeral_improved3(n):
+	numerals = {
+		"-": "负",
+		".": "点",
+		0: "零",
+		1: "一",
+		2: "二",
+		3: "三",
+		4: "四",
+		5: "五",
+		6: "六",
+		7: "七",
+		8: "八",
+		9: "九",
+		10: "十",
+		100: "百",
+		1000: "千",
+		10000: "万"}
+	if not n:
+		return numerals[0]
+	result = ["", "", "", "", "", "", "", "", "", ""]
+	result_index = {
+		"+/-": 0,
+		"?万": 1,
+		"万": 2,
+		"?千": 3,
+		"千": 4,
+		"?百": 5,
+		"百": 6,
+		"?十": 7,
+		"十": 8,
+		"個": 9,
+	}
+	if n < 0:
+		result[result_index["+/-"]] = numerals["-"]
+	int_n = int(abs(n))
+	if int_n == 0:
+		result[result_index["個"]] = numerals[0]
+	if isinstance(abs(n), float):
+		for decimal in str(n)[str(n).find(".")::]:
+			result.extend(numerals["."] if decimal == "." else numerals[int(decimal)])
+	if int_n > 0:
+		how_many = {
+			"万": 0,
+			"千": 0,
+			"百": 0,
+			"十": 0,
+			"個": 0
+		}
+		how_many["万"] += int_n // 10000
+		temp_n = int_n % 10000
+		how_many["千"] += temp_n // 1000
+		temp_n = temp_n % 1000
+		how_many["百"] += temp_n // 100
+		temp_n = temp_n % 100
+		how_many["十"] += temp_n // 10
+		temp_n = temp_n % 10
+		how_many["個"] += temp_n
+		leading_zero = {
+			"千": numerals[0] if how_many["万"] and not how_many["千"] and (
+						how_many["百"] or how_many["十"] or how_many["個"]) else "",
+			"百": numerals[0] if how_many["千"] and not how_many["百"] and (
+						how_many["十"] or how_many["個"]) else "",
+			"十": numerals[0] if how_many["百"] and not how_many["十"] and how_many["個"] else ""
+		}
+		if how_many["万"] > 0:
+			result[result_index["?万"]] = numerals[how_many["万"]]
+			result[result_index["万"]] = numerals[10000]
+		if how_many["千"] > 0:
+			result[result_index["?千"]] = numerals[how_many["千"]]
+			result[result_index["千"]] = numerals[1000]
+		result[result_index["千"]] += leading_zero["千"]
+		if how_many["百"] > 0:
+			result[result_index["?百"]] = numerals[how_many["百"]]
+			result[result_index["百"]] = numerals[100]
+		result[result_index["百"]] += leading_zero["百"]
+		if how_many["十"] > 0:
+			result[result_index["?十"]] = numerals[how_many["十"]] if int_n >= 20 else ""
+			result[result_index["十"]] = numerals[10]
+		result[result_index["十"]] += leading_zero["十"]
+		if how_many["個"] > 0:
+			result[result_index["個"]] = numerals[how_many["個"]]
+	return "".join(str(x) for x in result)
+  
+  
+  def main():
+	for v in range(0, 30):
+		print(to_chinese_numeral_improved2(v))
+	# for v in arange(1.001, 2):
+		# print(to_chinese_numeral_improved2(v))
+	# print(to_chinese_numeral_improved2(1.001))
+	# print(to_chinese_numeral_improved2(0.5))
+	# print(to_chinese_numeral_improved2(-1.032100))
+
+
+if __name__ in "__main__":
+	main()
